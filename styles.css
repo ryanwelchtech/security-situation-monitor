@@ -1,0 +1,1020 @@
+/* ============================================
+   SECURITY SITUATION MONITOR - STYLES
+   Dark tactical theme with security focus
+   ============================================ */
+
+:root {
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #111111;
+    --bg-tertiary: #1a1a1a;
+    --bg-panel: #141414;
+    --border-color: #2a2a2a;
+    --text-primary: #e8e8e8;
+    --text-secondary: #888888;
+    --text-muted: #555555;
+    --accent-critical: #ff4444;
+    --accent-high: #ff8844;
+    --accent-medium: #ffaa00;
+    --accent-low: #44aa44;
+    --accent-info: #4488ff;
+    --accent-success: #44ff88;
+    --accent-purple: #aa44ff;
+    --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-sans);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.5;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+header h1 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--text-primary);
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent-medium);
+    animation: pulse 2s infinite;
+}
+
+.status-dot.active {
+    background: var(--accent-success);
+}
+
+.status-dot.error {
+    background: var(--accent-critical);
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.desktop-nav {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.nav-btn {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.nav-btn:hover {
+    background: var(--bg-panel);
+    border-color: var(--text-muted);
+}
+
+.btn-icon {
+    font-size: 1rem;
+}
+
+.hamburger-btn {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.hamburger-btn span {
+    width: 20px;
+    height: 2px;
+    background: var(--text-primary);
+    transition: all 0.3s;
+}
+
+/* ============================================
+   MOBILE NAV
+   ============================================ */
+
+.mobile-nav {
+    display: none;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.mobile-nav.open {
+    display: flex;
+}
+
+/* ============================================
+   DASHBOARD GRID
+   ============================================ */
+
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    padding: 1px;
+    background: var(--border-color);
+}
+
+/* ============================================
+   PANELS
+   ============================================ */
+
+.panel {
+    background: var(--bg-panel);
+    display: flex;
+    flex-direction: column;
+    min-height: 300px;
+}
+
+.panel.wide {
+    grid-column: span 2;
+}
+
+.panel.hidden {
+    display: none;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+}
+
+.panel-header h2 {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+}
+
+.panel-subtitle {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    padding: 0.5rem 1rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.panel-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.panel-controls select {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.panel-badge {
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    padding: 0.2rem 0.6rem;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    font-family: var(--font-mono);
+}
+
+.panel-badge.critical {
+    background: var(--accent-critical);
+    color: #fff;
+}
+
+.panel-badge.warning {
+    background: var(--accent-medium);
+    color: #000;
+}
+
+.panel-badge.info {
+    background: var(--accent-info);
+    color: #fff;
+}
+
+.panel-badge.pulse {
+    animation: badge-pulse 1.5s infinite;
+}
+
+@keyframes badge-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.panel-content {
+    flex: 1;
+    padding: 0.75rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* ============================================
+   LOADING SPINNER
+   ============================================ */
+
+.loading-spinner {
+    width: 30px;
+    height: 30px;
+    border: 2px solid var(--border-color);
+    border-top-color: var(--accent-info);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 2rem auto;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   CVE ITEMS
+   ============================================ */
+
+.cve-item {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s;
+}
+
+.cve-item:hover {
+    border-color: var(--text-muted);
+}
+
+.cve-item.critical {
+    border-left: 3px solid var(--accent-critical);
+}
+
+.cve-item.high {
+    border-left: 3px solid var(--accent-high);
+}
+
+.cve-item.medium {
+    border-left: 3px solid var(--accent-medium);
+}
+
+.cve-item.low {
+    border-left: 3px solid var(--accent-low);
+}
+
+.cve-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.cve-id {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent-info);
+}
+
+.cve-id a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.cve-id a:hover {
+    text-decoration: underline;
+}
+
+.cve-score {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+}
+
+.cve-score.critical {
+    background: var(--accent-critical);
+    color: #fff;
+}
+
+.cve-score.high {
+    background: var(--accent-high);
+    color: #000;
+}
+
+.cve-score.medium {
+    background: var(--accent-medium);
+    color: #000;
+}
+
+.cve-score.low {
+    background: var(--accent-low);
+    color: #fff;
+}
+
+.cve-description {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.cve-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+}
+
+/* ============================================
+   KEV ITEMS
+   ============================================ */
+
+.kev-item {
+    background: var(--bg-secondary);
+    border: 1px solid var(--accent-critical);
+    border-radius: 4px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.kev-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.kev-id {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent-critical);
+}
+
+.kev-due {
+    font-size: 0.65rem;
+    color: var(--accent-medium);
+    font-family: var(--font-mono);
+}
+
+.kev-vendor {
+    font-size: 0.7rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.kev-product {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   THREAT INTEL ITEMS
+   ============================================ */
+
+.threat-item {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.threat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.threat-type {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    background: var(--accent-purple);
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.threat-confidence {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+.threat-ioc {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--accent-info);
+    word-break: break-all;
+    margin-bottom: 0.5rem;
+}
+
+.threat-malware {
+    font-size: 0.7rem;
+    color: var(--accent-critical);
+    font-weight: 500;
+}
+
+.threat-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+}
+
+.threat-tag {
+    font-size: 0.6rem;
+    padding: 0.1rem 0.3rem;
+    background: var(--bg-tertiary);
+    border-radius: 2px;
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   MALWARE ITEMS
+   ============================================ */
+
+.malware-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.malware-item:last-child {
+    border-bottom: none;
+}
+
+.malware-name {
+    font-size: 0.8rem;
+    color: var(--accent-critical);
+    font-weight: 500;
+}
+
+.malware-count {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   RANSOMWARE ITEMS
+   ============================================ */
+
+.ransomware-item {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--accent-critical);
+    border-radius: 4px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.ransomware-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.ransomware-victim {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.ransomware-group {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    background: var(--accent-critical);
+    color: #fff;
+    border-radius: 3px;
+    font-weight: 600;
+}
+
+.ransomware-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+.ransomware-country {
+    color: var(--accent-info);
+}
+
+.ransomware-sector {
+    color: var(--accent-medium);
+}
+
+/* ============================================
+   GROUP ITEMS
+   ============================================ */
+
+.group-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    margin-bottom: 0.4rem;
+}
+
+.group-name {
+    font-size: 0.8rem;
+    color: var(--accent-critical);
+    font-weight: 600;
+}
+
+.group-victims {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   CORRELATION ITEMS
+   ============================================ */
+
+.correlation-item {
+    background: var(--bg-secondary);
+    border: 1px solid var(--accent-purple);
+    border-radius: 4px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.correlation-header {
+    font-size: 0.75rem;
+    color: var(--accent-purple);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.correlation-detail {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.correlation-link {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--accent-info);
+}
+
+/* ============================================
+   MAP
+   ============================================ */
+
+.map-container {
+    padding: 0;
+    position: relative;
+    min-height: 350px;
+}
+
+.map-container svg {
+    width: 100%;
+    height: 100%;
+}
+
+.map-btn {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.map-btn:hover {
+    background: var(--bg-panel);
+}
+
+.country {
+    fill: var(--bg-tertiary);
+    stroke: var(--border-color);
+    stroke-width: 0.5;
+    transition: fill 0.3s;
+}
+
+.country:hover {
+    fill: var(--bg-secondary);
+}
+
+.country.has-threats {
+    fill: var(--accent-critical);
+    fill-opacity: 0.3;
+}
+
+.threat-marker {
+    fill: var(--accent-critical);
+    stroke: var(--accent-critical);
+    stroke-width: 2;
+    fill-opacity: 0.6;
+}
+
+.threat-marker.pulse {
+    animation: marker-pulse 2s infinite;
+}
+
+@keyframes marker-pulse {
+    0%, 100% { r: 5; opacity: 1; }
+    50% { r: 10; opacity: 0.5; }
+}
+
+/* ============================================
+   STATS GRID
+   ============================================ */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    padding: 1rem;
+}
+
+.stat-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.stat-value {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-info);
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ============================================
+   TIMELINE
+   ============================================ */
+
+.timeline-container {
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.timeline-container::before {
+    content: '';
+    position: absolute;
+    left: 0.5rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border-color);
+}
+
+.timeline-item {
+    position: relative;
+    padding: 0.75rem 0;
+    padding-left: 1rem;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -1rem;
+    top: 1rem;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent-critical);
+    border: 2px solid var(--bg-panel);
+}
+
+.timeline-item.cve::before {
+    background: var(--accent-high);
+}
+
+.timeline-item.ioc::before {
+    background: var(--accent-purple);
+}
+
+.timeline-time {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    margin-bottom: 0.25rem;
+}
+
+.timeline-title {
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.timeline-desc {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   MODAL
+   ============================================ */
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 200;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.open {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h2 {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.close-btn:hover {
+    color: var(--text-primary);
+}
+
+.modal-body {
+    padding: 1rem;
+    overflow-y: auto;
+    max-height: 60vh;
+}
+
+.panel-toggles {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.panel-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+}
+
+.panel-toggle input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.panel-toggle label {
+    font-size: 0.85rem;
+    cursor: pointer;
+    flex: 1;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+footer {
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.footer-content {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.footer-sep {
+    margin: 0 0.5rem;
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+}
+
+.empty-state-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state-text {
+    font-size: 0.8rem;
+}
+
+/* ============================================
+   ERROR STATE
+   ============================================ */
+
+.error-state {
+    text-align: center;
+    padding: 1rem;
+    color: var(--accent-critical);
+    font-size: 0.8rem;
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 1200px) {
+    .dashboard {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .panel.wide {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .panel.wide {
+        grid-column: span 1;
+    }
+
+    .desktop-nav {
+        display: none;
+    }
+
+    .hamburger-btn {
+        display: flex;
+    }
+
+    header h1 {
+        font-size: 0.9rem;
+    }
+
+    .status-indicator {
+        display: none;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        padding: 0.75rem 1rem;
+    }
+
+    header h1 {
+        font-size: 0.75rem;
+    }
+
+    .panel-header h2 {
+        font-size: 0.65rem;
+    }
+
+    .panel-content {
+        padding: 0.5rem;
+    }
+}

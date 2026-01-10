@@ -1,0 +1,25 @@
+{
+  "name": "security-situation-monitor",
+  "version": "1.0.0",
+  "description": "Real-time security situation monitor with CVE tracking, threat intelligence correlation, and ransomware/dark web monitoring",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve ."
+  },
+  "keywords": [
+    "security",
+    "cve",
+    "threat-intelligence",
+    "ransomware",
+    "monitoring",
+    "dashboard",
+    "cybersecurity"
+  ],
+  "author": "Ryan Welch",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ryanwelchtech/security-situation-monitor.git"
+  }
+}

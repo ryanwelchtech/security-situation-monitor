@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Situation Monitor | Real-Time Threat Intelligence</title>
+    <meta name="description" content="Real-time security monitoring dashboard with CVE tracking, threat intelligence correlation, and ransomware activity monitoring.">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/topojson-client@3"></script>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <h1>SECURITY SITUATION MONITOR</h1>
+            <div class="status-indicator">
+                <span class="status-dot"></span>
+                <span id="status-text">INITIALIZING</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <nav class="desktop-nav" id="desktop-nav">
+                <button onclick="refreshAll()" class="nav-btn">
+                    <span class="btn-icon">↻</span> Refresh
+                </button>
+                <button onclick="openSettings()" class="nav-btn">
+                    <span class="btn-icon">⚙</span> Panels
+                </button>
+                <button onclick="toggleAutoRefresh()" class="nav-btn" id="auto-refresh-btn">
+                    <span class="btn-icon">⏱</span> Auto: ON
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <div class="mobile-nav" id="mobile-nav">
+        <button onclick="refreshAll(); closeMobileMenu();" class="nav-btn">↻ Refresh All</button>
+        <button onclick="openSettings(); closeMobileMenu();" class="nav-btn">⚙ Panel Settings</button>
+        <button onclick="toggleAutoRefresh(); closeMobileMenu();" class="nav-btn" id="auto-refresh-btn-mobile">⏱ Auto-Refresh: ON</button>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Panel Configuration</h2>
+                <button class="close-btn" onclick="closeSettings()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="panel-toggles" id="panel-toggles">
+                    <!-- Generated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="dashboard">
+        <!-- CVE Threat Feed Panel -->
+        <section class="panel wide" id="panel-cve" data-panel="cve">
+            <div class="panel-header">
+                <h2>CVE THREAT FEED</h2>
+                <div class="panel-controls">
+                    <select id="cve-severity-filter" onchange="filterCVEs()">
+                        <option value="all">All Severity</option>
+                        <option value="critical">Critical (9.0+)</option>
+                        <option value="high">High (7.0-8.9)</option>
+                        <option value="medium">Medium (4.0-6.9)</option>
+                        <option value="low">Low (0.1-3.9)</option>
+                    </select>
+                    <span class="panel-badge" id="cve-count">0</span>
+                </div>
+            </div>
+            <div class="panel-content" id="cve-content">
+                <div class="loading-spinner"></div>
+            </div>
+        </section>
+
+        <!-- CISA KEV Panel -->
+        <section class="panel" id="panel-kev" data-panel="kev">
+            <div class="panel-header">
+                <h2>CISA KEV</h2>
+                <div class="panel-controls">
+                    <span class="panel-badge critical" id="kev-count">0</span>
+                </div>
+            </div>
+            <div class="panel-subtitle">Known Exploited Vulnerabilities</div>
+            <div class="panel-content" id="kev-content">
+                <div class="loading-spinner"></div>
+            </div>
+        </section>
+
+        <!-- Threat Intelligence Correlation Panel -->
+        <section class="panel wide" id="panel-threat-intel" data-panel="threat-intel">
+            <div class="panel-header">
+                <h2>THREAT INTELLIGENCE CORRELATION</h2>
+                <div class="panel-controls">
+                    <select id="threat-type-filter" onchange="filterThreats()">
+                        <option value="all">All Types</option>
+                        <option value="ip:port">IP:Port</option>
+                        <option value="domain">Domain</option>
+                        <option value="url">URL</option>
+                        <option value="sha256_hash">SHA256</option>
+                    </select>
+                    <span class="panel-badge" id="threat-count">0</span>
+                </div>
+            </div>
+            <div class="panel-content" id="threat-intel-content">
+                <div class="loading-spinner"></div>
+            </div>
+        </section>
+
+        <!-- Malware Families Panel -->
+        <section class="panel" id="panel-malware" data-panel="malware">
+            <div class="panel-header">
+                <h2>ACTIVE MALWARE</h2>
+                <div class="panel-controls">
+                    <span class="panel-badge warning" id="malware-count">0</span>
+                </div>
+            </div>
+            <div class="panel-subtitle">ThreatFox Malware Families</div>
+            <div class="panel-content" id="malware-content">
+                <div class="loading-spinner"></div>
+            </div>
+        </section>
+
+        <!-- Ransomware Activity Panel -->
+        <section class="panel wide" id="panel-ransomware" data-panel="ransomware">
+            <div class="panel-header">
+                <h2>RANSOMWARE ACTIVITY</h2>
+                <div class="panel-controls">
+                    <span class="panel-badge critical pulse" id="ransomware-count">0</span>
+                </div>
+            </div>
+            <div class="panel-subtitle">Dark Web Leak Site Monitoring</div>
+            <div class="panel-content" id="ransomware-content">
+                <div class="loading-spinner"></div>
+            </div>
+        </section>
+
+        <!-- Ransomware Groups Panel -->
+        <section class="panel" id="panel-groups" data-panel="groups">
+            <div class="panel-header">
+                <h2>THREAT ACTORS</h2>
+                <div class="panel-controls">
+                    <span class="panel-badge" id="groups-count">0</span>
+                </div>
+            </div>
+            <div class="panel-subtitle">Active Ransomware Groups</div>
+            <div class="panel-content" id="groups-content">
+                <div class="loading-spinner"></div>
+            </div>
+        </section>
+
+        <!-- CVE-Threat Correlation Panel -->
+        <section class="panel" id="panel-correlation" data-panel="correlation">
+            <div class="panel-header">
+                <h2>CORRELATION ENGINE</h2>
+                <div class="panel-controls">
+                    <span class="panel-badge info" id="correlation-count">0</span>
+                </div>
+            </div>
+            <div class="panel-subtitle">CVE + IOC Cross-Reference</div>
+            <div class="panel-content" id="correlation-content">
+                <div class="loading-spinner"></div>
+            </div>
+        </section>
+
+        <!-- Threat Map Panel -->
+        <section class="panel wide" id="panel-map" data-panel="map">
+            <div class="panel-header">
+                <h2>GLOBAL THREAT MAP</h2>
+                <div class="panel-controls">
+                    <button class="map-btn" onclick="resetMapZoom()">Reset</button>
+                </div>
+            </div>
+            <div class="panel-content map-container" id="threat-map">
+                <div class="loading-spinner"></div>
+            </div>
+        </section>
+
+        <!-- Stats Panel -->
+        <section class="panel" id="panel-stats" data-panel="stats">
+            <div class="panel-header">
+                <h2>THREAT METRICS</h2>
+            </div>
+            <div class="panel-content stats-grid" id="stats-content">
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-critical">--</div>
+                    <div class="stat-label">Critical CVEs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-kev">--</div>
+                    <div class="stat-label">Active KEVs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-iocs">--</div>
+                    <div class="stat-label">IOCs (24h)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-victims">--</div>
+                    <div class="stat-label">Ransomware Victims</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Attacks Timeline -->
+        <section class="panel wide" id="panel-timeline" data-panel="timeline">
+            <div class="panel-header">
+                <h2>ATTACK TIMELINE</h2>
+            </div>
+            <div class="panel-content timeline-container" id="timeline-content">
+                <div class="loading-spinner"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <span>Last Updated: <span id="last-update">--</span></span>
+            <span class="footer-sep">|</span>
+            <span>Data Sources: NVD, CISA KEV, ThreatFox, Ransomware.live</span>
+            <span class="footer-sep">|</span>
+            <span>Auto-refresh: 5 min</span>
+        </div>
+    </footer>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
