@@ -10,6 +10,7 @@ import {
     fetchThreatFoxIOCs,
     fetchRansomwareVictims,
     fetchRansomwareGroups,
+    fetchConflictData,
     clearCache
 } from './data.js';
 import {
@@ -34,6 +35,7 @@ let autoRefreshInterval = null;
 let autoRefreshEnabled = true;
 let allCVEs = [];
 let allThreatData = { iocs: [], malwareFamilies: [] };
+let allConflictData = { conflicts: [], locationCounts: {} };
 
 /**
  * Initialize the application
@@ -65,7 +67,8 @@ async function refreshAll() {
 
     try {
         // Fetch all data in parallel
-        const [cves, kevs, threatData, ransomwareVictims, ransomwareGroups] = await Promise.allSettled([
+        const [conflicts, cves, kevs, threatData, ransomwareVictims, ransomwareGroups] = await Promise.allSettled([
+            fetchConflictData(),
             fetchRecentCVEs(),
             fetchCISAKEV(),
             fetchThreatFoxIOCs(),
@@ -74,6 +77,7 @@ async function refreshAll() {
         ]);
 
         // Extract values, handling failures gracefully
+        const conflictData = conflicts.status === 'fulfilled' ? conflicts.value : { conflicts: [], locationCounts: {} };
         const cveData = cves.status === 'fulfilled' ? cves.value : [];
         const kevData = kevs.status === 'fulfilled' ? kevs.value : [];
         const threatIntelData = threatData.status === 'fulfilled' ? threatData.value : { iocs: [], malwareFamilies: [] };
@@ -83,6 +87,7 @@ async function refreshAll() {
         // Store for filtering
         allCVEs = cveData;
         allThreatData = threatIntelData;
+        allConflictData = conflictData;
 
         // Render panels
         if (isPanelEnabled('cve')) {
@@ -115,9 +120,16 @@ async function refreshAll() {
             renderCorrelations(correlations);
         }
 
-        // Update map
+        // Update map with conflict data as primary focus
         if (isPanelEnabled('map')) {
-            updateThreatMarkers(victimsData, threatIntelData.iocs);
+            updateThreatMarkers(conflictData, victimsData);
+
+            // Update conflict count badge
+            const conflictCount = conflictData.conflicts ? conflictData.conflicts.length : 0;
+            const countBadge = document.getElementById('conflict-count');
+            if (countBadge) {
+                countBadge.textContent = conflictCount;
+            }
         }
 
         // Update stats
