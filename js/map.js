@@ -9,7 +9,7 @@ let path = null;
 let zoom = null;
 let g = null;
 
-// Country coordinates for threat markers
+// Country coordinates for threat and conflict markers
 const COUNTRY_COORDS = {
     'US': [-95.7, 37.1],
     'United States': [-95.7, 37.1],
@@ -94,7 +94,55 @@ const COUNTRY_COORDS = {
     'HK': [114.2, 22.4],
     'Hong Kong': [114.2, 22.4],
     'NZ': [174.9, -40.9],
-    'New Zealand': [174.9, -40.9]
+    'New Zealand': [174.9, -40.9],
+    'IR': [53.7, 32.4],
+    'Iran': [53.7, 32.4],
+    'VE': [-66.6, 6.4],
+    'Venezuela': [-66.6, 6.4],
+    'UA': [31.2, 49.0],
+    'Ukraine': [31.2, 49.0],
+    'SY': [38.9, 34.8],
+    'Syria': [38.9, 34.8],
+    'IQ': [43.7, 33.2],
+    'Iraq': [43.7, 33.2],
+    'AF': [67.7, 33.9],
+    'Afghanistan': [67.7, 33.9],
+    'YE': [48.5, 15.6],
+    'Yemen': [48.5, 15.6],
+    'LY': [17.2, 26.3],
+    'Libya': [17.2, 26.3],
+    'SD': [30.2, 12.9],
+    'Sudan': [30.2, 12.9],
+    'SO': [46.2, 5.2],
+    'Somalia': [46.2, 5.2],
+    'KP': [127.5, 40.3],
+    'North Korea': [127.5, 40.3],
+    'PK': [69.3, 30.4],
+    'Pakistan': [69.3, 30.4],
+    'NG': [8.7, 9.1],
+    'Nigeria': [8.7, 9.1],
+    'CD': [21.8, -4.0],
+    'Congo (DRC)': [21.8, -4.0],
+    'ET': [40.5, 9.1],
+    'Ethiopia': [40.5, 9.1],
+    'MM': [95.9, 21.9],
+    'Myanmar': [95.9, 21.9],
+    'PS': [35.2, 31.9],
+    'Palestine': [35.2, 31.9],
+    'LB': [35.9, 33.9],
+    'Lebanon': [35.9, 33.9],
+    'JO': [36.2, 30.6],
+    'Jordan': [36.2, 30.6],
+    'SA': [45.1, 23.9],
+    'Saudi Arabia': [45.1, 23.9],
+    'EG': [30.8, 26.8],
+    'Egypt': [30.8, 26.8],
+    'TN': [9.5, 33.9],
+    'Tunisia': [9.5, 33.9],
+    'MA': [-7.1, 31.8],
+    'Morocco': [-7.1, 31.8],
+    'DZ': [1.7, 28.0],
+    'Algeria': [1.7, 28.0]
 };
 
 /**
@@ -107,8 +155,8 @@ export async function initMap(containerId = 'threat-map') {
     // Clear existing content
     container.textContent = '';
 
-    const width = container.clientWidth || 800;
-    const height = container.clientHeight || 350;
+    const width = container.clientWidth || 1200;
+    const height = container.clientHeight || 500;
 
     // Create SVG
     svg = d3.select(`#${containerId}`)
@@ -118,9 +166,9 @@ export async function initMap(containerId = 'threat-map') {
         .attr('viewBox', `0 0 ${width} ${height}`)
         .attr('preserveAspectRatio', 'xMidYMid meet');
 
-    // Create projection
+    // Create projection with better scale for larger map
     projection = d3.geoNaturalEarth1()
-        .scale(width / 5.5)
+        .scale(width / 6)
         .translate([width / 2, height / 2]);
 
     path = d3.geoPath().projection(projection);
@@ -167,68 +215,134 @@ export async function initMap(containerId = 'threat-map') {
 }
 
 /**
- * Update threat markers on the map
+ * Update conflict and threat markers on the map
  */
-export function updateThreatMarkers(ransomwareVictims, iocs) {
+export function updateThreatMarkers(conflictData, ransomwareVictims) {
     if (!g) return;
 
     // Remove existing markers
+    g.selectAll('.conflict-marker').remove();
+    g.selectAll('.conflict-marker-pulse').remove();
     g.selectAll('.threat-marker').remove();
     g.selectAll('.threat-marker-pulse').remove();
 
-    // Count threats by country
-    const countryCounts = {};
+    // Track all markers to show
+    const markers = [];
 
-    if (ransomwareVictims) {
-        ransomwareVictims.forEach(victim => {
-            const country = victim.country;
-            if (country && COUNTRY_COORDS[country]) {
-                countryCounts[country] = (countryCounts[country] || 0) + 1;
+    // Add conflict markers (primary focus)
+    if (conflictData && conflictData.locationCounts) {
+        Object.entries(conflictData.locationCounts).forEach(([location, count]) => {
+            const coords = COUNTRY_COORDS[location];
+            if (coords) {
+                markers.push({
+                    type: 'conflict',
+                    location: location,
+                    count: count,
+                    coords: coords,
+                    severity: count >= 5 ? 'critical' : count >= 3 ? 'high' : 'medium'
+                });
             }
         });
     }
 
-    // Add threat markers
-    Object.entries(countryCounts).forEach(([country, count]) => {
-        const coords = COUNTRY_COORDS[country];
-        if (!coords) return;
+    // Add ransomware markers (secondary)
+    const ransomwareCounts = {};
+    if (ransomwareVictims) {
+        ransomwareVictims.forEach(victim => {
+            const country = victim.country;
+            if (country && COUNTRY_COORDS[country]) {
+                ransomwareCounts[country] = (ransomwareCounts[country] || 0) + 1;
+            }
+        });
 
-        const [x, y] = projection(coords);
+        Object.entries(ransomwareCounts).forEach(([country, count]) => {
+            const coords = COUNTRY_COORDS[country];
+            if (coords) {
+                // Don't add if there's already a conflict marker for this location
+                const hasConflict = markers.some(m => m.location === country);
+                if (!hasConflict) {
+                    markers.push({
+                        type: 'cyber',
+                        location: country,
+                        count: count,
+                        coords: coords,
+                        severity: 'medium'
+                    });
+                }
+            }
+        });
+    }
+
+    // Render all markers
+    markers.forEach(marker => {
+        const [x, y] = projection(marker.coords);
         if (isNaN(x) || isNaN(y)) return;
 
-        const radius = Math.min(5 + count * 2, 15);
+        const radius = Math.min(8 + marker.count * 1.5, 20);
+        const color = marker.type === 'conflict' ? getConflictColor(marker.severity) : '#ff8844';
+        const markerClass = marker.type === 'conflict' ? 'conflict-marker' : 'threat-marker';
+        const pulseClass = marker.type === 'conflict' ? 'conflict-marker-pulse' : 'threat-marker-pulse';
 
-        // Pulse effect
-        g.append('circle')
-            .attr('class', 'threat-marker-pulse')
-            .attr('cx', x)
-            .attr('cy', y)
-            .attr('r', radius)
-            .attr('fill', 'none')
-            .attr('stroke', '#ff4444')
-            .attr('stroke-width', 2)
-            .attr('opacity', 0.5)
-            .style('animation', 'pulse 2s infinite');
+        // Pulse effect for critical conflicts
+        if (marker.severity === 'critical' || marker.count >= 3) {
+            g.append('circle')
+                .attr('class', pulseClass)
+                .attr('cx', x)
+                .attr('cy', y)
+                .attr('r', radius)
+                .attr('fill', 'none')
+                .attr('stroke', color)
+                .attr('stroke-width', 2)
+                .attr('opacity', 0.5)
+                .style('animation', 'pulse 2s infinite');
+        }
 
         // Main marker
-        g.append('circle')
-            .attr('class', 'threat-marker')
+        const markerElement = g.append('circle')
+            .attr('class', markerClass)
             .attr('cx', x)
             .attr('cy', y)
             .attr('r', radius)
-            .attr('fill', '#ff4444')
-            .attr('fill-opacity', 0.6)
-            .attr('stroke', '#ff4444')
-            .attr('stroke-width', 1)
-            .append('title')
-            .text(`${country}: ${count} threat(s)`);
-    });
+            .attr('fill', color)
+            .attr('fill-opacity', 0.7)
+            .attr('stroke', color)
+            .attr('stroke-width', 1.5)
+            .style('cursor', 'pointer');
 
-    // Highlight countries with threats
-    g.selectAll('.country')
-        .attr('fill', function() {
-            return '#1a1a1a';
-        });
+        // Tooltip
+        markerElement.append('title')
+            .text(`${marker.location}\n${marker.type === 'conflict' ? 'Geopolitical Conflict' : 'Cyber Threat'}\nIncidents: ${marker.count}`);
+
+        // Hover effect
+        markerElement
+            .on('mouseover', function() {
+                d3.select(this)
+                    .transition()
+                    .duration(200)
+                    .attr('r', radius * 1.3)
+                    .attr('fill-opacity', 0.9);
+            })
+            .on('mouseout', function() {
+                d3.select(this)
+                    .transition()
+                    .duration(200)
+                    .attr('r', radius)
+                    .attr('fill-opacity', 0.7);
+            });
+    });
+}
+
+/**
+ * Get color based on conflict severity
+ */
+function getConflictColor(severity) {
+    const colors = {
+        'critical': '#ff4444',  // Red
+        'high': '#ff8844',      // Orange
+        'medium': '#ffaa00',    // Yellow
+        'low': '#44aa44'        // Green
+    };
+    return colors[severity] || colors.medium;
 }
 
 /**

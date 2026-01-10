@@ -60,8 +60,23 @@
     </div>
 
     <main class="dashboard">
+        <!-- Global Conflict Map Panel - MAIN FEATURE -->
+        <section class="panel map-main" id="panel-map" data-panel="map">
+            <div class="panel-header">
+                <h2>LIVE GEOPOLITICAL CONFLICT MAP</h2>
+                <div class="panel-controls">
+                    <span class="panel-badge info" id="conflict-count">0</span>
+                    <button class="map-btn" onclick="resetMapZoom()">Reset</button>
+                </div>
+            </div>
+            <div class="panel-subtitle">Real-time monitoring of global conflicts, political crises, and security threats</div>
+            <div class="panel-content map-container" id="threat-map">
+                <div class="loading-spinner"></div>
+            </div>
+        </section>
+
         <!-- CVE Threat Feed Panel -->
-        <section class="panel wide" id="panel-cve" data-panel="cve">
+        <section class="panel" id="panel-cve" data-panel="cve">
             <div class="panel-header">
                 <h2>CVE THREAT FEED</h2>
                 <div class="panel-controls">
@@ -95,7 +110,7 @@
         </section>
 
         <!-- Threat Intelligence Correlation Panel -->
-        <section class="panel wide" id="panel-threat-intel" data-panel="threat-intel">
+        <section class="panel" id="panel-threat-intel" data-panel="threat-intel">
             <div class="panel-header">
                 <h2>THREAT INTELLIGENCE CORRELATION</h2>
                 <div class="panel-controls">
@@ -129,7 +144,7 @@
         </section>
 
         <!-- Ransomware Activity Panel -->
-        <section class="panel wide" id="panel-ransomware" data-panel="ransomware">
+        <section class="panel" id="panel-ransomware" data-panel="ransomware">
             <div class="panel-header">
                 <h2>RANSOMWARE ACTIVITY</h2>
                 <div class="panel-controls">
@@ -170,19 +185,6 @@
             </div>
         </section>
 
-        <!-- Threat Map Panel -->
-        <section class="panel wide" id="panel-map" data-panel="map">
-            <div class="panel-header">
-                <h2>GLOBAL THREAT MAP</h2>
-                <div class="panel-controls">
-                    <button class="map-btn" onclick="resetMapZoom()">Reset</button>
-                </div>
-            </div>
-            <div class="panel-content map-container" id="threat-map">
-                <div class="loading-spinner"></div>
-            </div>
-        </section>
-
         <!-- Stats Panel -->
         <section class="panel" id="panel-stats" data-panel="stats">
             <div class="panel-header">
@@ -209,7 +211,7 @@
         </section>
 
         <!-- Recent Attacks Timeline -->
-        <section class="panel wide" id="panel-timeline" data-panel="timeline">
+        <section class="panel" id="panel-timeline" data-panel="timeline">
             <div class="panel-header">
                 <h2>ATTACK TIMELINE</h2>
             </div>
@@ -223,7 +225,7 @@
         <div class="footer-content">
             <span>Last Updated: <span id="last-update">--</span></span>
             <span class="footer-sep">|</span>
-            <span>Data Sources: NVD, CISA KEV, ThreatFox, Ransomware.live</span>
+            <span>Data Sources: GDELT, NVD, CISA KEV, ThreatFox, Ransomware.live</span>
             <span class="footer-sep">|</span>
             <span>Auto-refresh: 5 min</span>
         </div>

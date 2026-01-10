@@ -18,6 +18,12 @@ export const API_ENDPOINTS = {
     RANSOMWARE_VICTIMS: 'https://api.ransomware.live/v2/recentvictims',
     RANSOMWARE_GROUPS: 'https://api.ransomware.live/v2/groups',
 
+    // GDELT Project API for geopolitical conflict data
+    GDELT_API: 'https://api.gdeltproject.org/api/v2/doc/doc',
+
+    // ACLED (Armed Conflict Location & Event Data Project)
+    ACLED_API: 'https://api.acleddata.com/acled/read',
+
     // CORS Proxy for APIs that don't support CORS
     CORS_PROXY: 'https://api.allorigins.win/raw?url='
 };
@@ -89,8 +95,53 @@ export const COUNTRY_CODES = {
     'KR': 'South Korea',
     'MX': 'Mexico',
     'SG': 'Singapore',
-    'AE': 'UAE'
+    'AE': 'UAE',
+    'IR': 'Iran',
+    'VE': 'Venezuela',
+    'UA': 'Ukraine',
+    'SY': 'Syria',
+    'IQ': 'Iraq',
+    'AF': 'Afghanistan',
+    'YE': 'Yemen',
+    'LY': 'Libya',
+    'SD': 'Sudan',
+    'SO': 'Somalia',
+    'KP': 'North Korea',
+    'PK': 'Pakistan',
+    'NG': 'Nigeria',
+    'CD': 'Congo (DRC)',
+    'ET': 'Ethiopia',
+    'MM': 'Myanmar',
+    'TW': 'Taiwan',
+    'IL': 'Israel',
+    'PS': 'Palestine',
+    'LB': 'Lebanon',
+    'JO': 'Jordan',
+    'SA': 'Saudi Arabia',
+    'EG': 'Egypt',
+    'TN': 'Tunisia',
+    'MA': 'Morocco',
+    'DZ': 'Algeria'
 };
+
+// Geopolitical conflict queries for GDELT
+export const CONFLICT_QUERIES = [
+    'russia ukraine war',
+    'venezuela political crisis',
+    'iran nuclear sanctions',
+    'north korea missile',
+    'china taiwan military',
+    'israel palestine conflict',
+    'syria civil war',
+    'yemen conflict',
+    'myanmar coup',
+    'sudan conflict',
+    'ethiopia tigray',
+    'libya conflict',
+    'afghanistan taliban',
+    'kashmir dispute',
+    'south china sea'
+];
 
 // Sector mapping
 export const SECTORS = {
