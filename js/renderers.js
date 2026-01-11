@@ -434,3 +434,134 @@ export function setStatus(status, text) {
         textEl.textContent = text;
     }
 }
+
+/**
+ * Render live intelligence feeds
+ */
+export function renderLiveFeeds(feeds, containerId = 'live-feed-list') {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.textContent = '';
+
+    if (!feeds || feeds.length === 0) {
+        showEmptyState(container, '📡', 'No recent intelligence');
+        return;
+    }
+
+    // Update count badge
+    const countBadge = document.getElementById('feed-count');
+    if (countBadge) {
+        countBadge.textContent = feeds.length;
+    }
+
+    feeds.forEach(feed => {
+        const item = createElement('div', 'feed-item');
+
+        // Source header
+        const source = createElement('div', 'feed-source');
+
+        const icon = createElement('div', 'feed-source-icon');
+        icon.textContent = feed.source.charAt(0).toUpperCase();
+        source.appendChild(icon);
+
+        source.appendChild(createElement('div', 'feed-source-name', feed.source));
+        source.appendChild(createElement('div', 'feed-time', getRelativeTime(feed.published)));
+        item.appendChild(source);
+
+        // Title
+        item.appendChild(createElement('div', 'feed-title', truncate(feed.title, 100)));
+
+        // Category
+        item.appendChild(createElement('div', 'feed-category', feed.category));
+
+        // Click to open
+        item.addEventListener('click', () => {
+            if (feed.url) {
+                window.open(feed.url, '_blank');
+            }
+        });
+
+        container.appendChild(item);
+    });
+}
+
+/**
+ * Render earthquakes in sidebar
+ */
+export function renderEarthquakeFeed(earthquakes, containerId = 'earthquake-feed-list') {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.textContent = '';
+
+    if (!earthquakes || earthquakes.length === 0) {
+        showEmptyState(container, '🌍', 'No recent earthquakes');
+        return;
+    }
+
+    // Update count badge
+    const countBadge = document.getElementById('earthquake-count');
+    if (countBadge) {
+        countBadge.textContent = earthquakes.length;
+    }
+
+    // Sort by magnitude (largest first)
+    const sorted = [...earthquakes].sort((a, b) => b.magnitude - a.magnitude);
+
+    sorted.forEach(eq => {
+        const item = createElement('div', 'earthquake-item');
+
+        // Header with magnitude
+        const header = createElement('div', 'earthquake-header');
+        header.appendChild(createElement('div', 'earthquake-mag', eq.magnitude.toFixed(1)));
+        const time = createElement('div', 'feed-time', getRelativeTime(eq.time));
+        header.appendChild(time);
+        item.appendChild(header);
+
+        // Location
+        item.appendChild(createElement('div', 'earthquake-location', eq.location));
+
+        // Details
+        const details = createElement('div', 'earthquake-details');
+        details.textContent = `Depth: ${eq.depth.toFixed(1)} km`;
+        if (eq.tsunami) {
+            const tsunami = createElement('span');
+            tsunami.textContent = ' ⚠ TSUNAMI WARNING';
+            tsunami.style.color = 'var(--accent-critical)';
+            tsunami.style.fontWeight = '700';
+            details.appendChild(tsunami);
+        }
+        item.appendChild(details);
+
+        // Click to open USGS page
+        item.addEventListener('click', () => {
+            if (eq.url) {
+                window.open(eq.url, '_blank');
+            }
+        });
+
+        container.appendChild(item);
+    });
+}
+
+/**
+ * Get relative time string
+ */
+function getRelativeTime(dateString) {
+    if (!dateString) return '';
+
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins}m`;
+
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h`;
+
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays}d`;
+}

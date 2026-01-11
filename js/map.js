@@ -185,12 +185,26 @@ export async function initMap(containerId = 'threat-map') {
     // Create main group for map elements
     g = svg.append('g');
 
-    // Add ocean background
+    // Add ocean background with blue gradient
+    const oceanGradient = svg.append('defs')
+        .append('radialGradient')
+        .attr('id', 'ocean-gradient')
+        .attr('cx', '50%')
+        .attr('cy', '50%');
+
+    oceanGradient.append('stop')
+        .attr('offset', '0%')
+        .attr('stop-color', '#1e4a7a');
+
+    oceanGradient.append('stop')
+        .attr('offset', '100%')
+        .attr('stop-color', '#0f2844');
+
     g.append('rect')
         .attr('class', 'ocean')
         .attr('width', width)
         .attr('height', height)
-        .attr('fill', '#0a0a0a');
+        .attr('fill', 'url(#ocean-gradient)');
 
     // Load and render world map
     try {
@@ -205,8 +219,8 @@ export async function initMap(containerId = 'threat-map') {
             .append('path')
             .attr('class', 'country')
             .attr('d', path)
-            .attr('fill', '#1a1a1a')
-            .attr('stroke', '#2a2a2a')
+            .attr('fill', '#2d3f5a')
+            .attr('stroke', '#4a5f7a')
             .attr('stroke-width', 0.5);
 
     } catch (error) {
@@ -215,9 +229,9 @@ export async function initMap(containerId = 'threat-map') {
 }
 
 /**
- * Update conflict and threat markers on the map
+ * Update conflict, threat, and earthquake markers on the map
  */
-export function updateThreatMarkers(conflictData, ransomwareVictims) {
+export function updateThreatMarkers(conflictData, ransomwareVictims, earthquakes) {
     if (!g) return;
 
     // Remove existing markers
@@ -225,6 +239,8 @@ export function updateThreatMarkers(conflictData, ransomwareVictims) {
     g.selectAll('.conflict-marker-pulse').remove();
     g.selectAll('.threat-marker').remove();
     g.selectAll('.threat-marker-pulse').remove();
+    g.selectAll('.earthquake-marker').remove();
+    g.selectAll('.earthquake-marker-pulse').remove();
 
     // Track all markers to show
     const markers = [];
@@ -268,6 +284,71 @@ export function updateThreatMarkers(conflictData, ransomwareVictims) {
                         coords: coords,
                         severity: 'medium'
                     });
+                }
+            }
+        });
+    }
+
+    // Add earthquake markers
+    if (earthquakes && earthquakes.length > 0) {
+        earthquakes.forEach(eq => {
+            if (eq.coords && eq.coords.length >= 2) {
+                const [x, y] = projection(eq.coords);
+                if (!isNaN(x) && !isNaN(y)) {
+                    const radius = Math.min(4 + eq.magnitude * 2, 16);
+                    const color = '#ff8833'; // Orange for earthquakes
+
+                    // Pulse effect for larger earthquakes
+                    if (eq.magnitude >= 4.0) {
+                        g.append('circle')
+                            .attr('class', 'earthquake-marker-pulse')
+                            .attr('cx', x)
+                            .attr('cy', y)
+                            .attr('r', radius)
+                            .attr('fill', 'none')
+                            .attr('stroke', color)
+                            .attr('stroke-width', 2)
+                            .attr('opacity', 0.6)
+                            .style('animation', 'pulse 2s infinite');
+                    }
+
+                    // Main earthquake marker
+                    const eqMarker = g.append('circle')
+                        .attr('class', 'earthquake-marker')
+                        .attr('cx', x)
+                        .attr('cy', y)
+                        .attr('r', radius)
+                        .attr('fill', color)
+                        .attr('fill-opacity', 0.6)
+                        .attr('stroke', '#ffaa44')
+                        .attr('stroke-width', 1.5)
+                        .style('cursor', 'pointer');
+
+                    // Tooltip
+                    eqMarker.append('title')
+                        .text(`EARTHQUAKE\nMagnitude: ${eq.magnitude}\nLocation: ${eq.location}\nDepth: ${eq.depth.toFixed(1)} km`);
+
+                    // Hover effect
+                    eqMarker
+                        .on('mouseover', function() {
+                            d3.select(this)
+                                .transition()
+                                .duration(200)
+                                .attr('r', radius * 1.3)
+                                .attr('fill-opacity', 0.9);
+                        })
+                        .on('mouseout', function() {
+                            d3.select(this)
+                                .transition()
+                                .duration(200)
+                                .attr('r', radius)
+                                .attr('fill-opacity', 0.6);
+                        })
+                        .on('click', function() {
+                            if (eq.url) {
+                                window.open(eq.url, '_blank');
+                            }
+                        });
                 }
             }
         });

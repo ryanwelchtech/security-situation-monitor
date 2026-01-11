@@ -12,7 +12,9 @@ const dataCache = {
     threatfox: { data: null, timestamp: 0 },
     ransomware: { data: null, timestamp: 0 },
     groups: { data: null, timestamp: 0 },
-    conflicts: { data: null, timestamp: 0 }
+    conflicts: { data: null, timestamp: 0 },
+    earthquakes: { data: null, timestamp: 0 },
+    liveFeeds: { data: null, timestamp: 0 }
 };
 
 const CACHE_TTL = 4 * 60 * 1000; // 4 minutes
@@ -521,6 +523,138 @@ function determineSeverity(tone) {
     if (toneValue < -2) return 'high';
     if (toneValue < 0) return 'medium';
     return 'low';
+}
+
+/**
+ * Fetch earthquake data from USGS
+ */
+export async function fetchEarthquakes() {
+    if (isCacheValid('earthquakes')) {
+        return dataCache.earthquakes.data;
+    }
+
+    try {
+        const response = await fetchWithTimeout(API_ENDPOINTS.USGS_EARTHQUAKES, {}, 15000);
+
+        if (!response.ok) {
+            throw new Error(`USGS API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        const earthquakes = data.features.map(eq => ({
+            id: eq.id,
+            magnitude: eq.properties.mag,
+            location: eq.properties.place,
+            time: eq.properties.time,
+            coords: [eq.geometry.coordinates[0], eq.geometry.coordinates[1]],
+            depth: eq.geometry.coordinates[2],
+            url: eq.properties.url,
+            tsunami: eq.properties.tsunami === 1,
+            significance: eq.properties.sig
+        })).filter(eq => eq.magnitude >= 2.5); // Only show 2.5+ magnitude
+
+        dataCache.earthquakes = { data: earthquakes, timestamp: Date.now() };
+        return earthquakes;
+
+    } catch (error) {
+        console.error('Error fetching earthquake data:', error);
+        return dataCache.earthquakes.data || [];
+    }
+}
+
+/**
+ * Fetch live intelligence feeds from GDELT
+ */
+export async function fetchLiveFeeds() {
+    if (isCacheValid('liveFeeds')) {
+        return dataCache.liveFeeds.data;
+    }
+
+    try {
+        const feeds = [];
+        const keywords = [
+            'military exercise',
+            'missile launch',
+            'air strike',
+            'explosion',
+            'protests',
+            'coup attempt',
+            'cyber attack',
+            'sanctions',
+            'naval incident'
+        ];
+
+        // Fetch recent news for key intelligence topics
+        for (const keyword of keywords.slice(0, 6)) {
+            try {
+                const params = new URLSearchParams({
+                    query: keyword,
+                    mode: 'artlist',
+                    maxrecords: '5',
+                    format: 'json',
+                    sort: 'DateDesc',
+                    timespan: '6h' // Last 6 hours only
+                });
+
+                const response = await fetchWithTimeout(
+                    `${API_ENDPOINTS.GDELT_API}?${params}`,
+                    {},
+                    10000
+                );
+
+                if (!response.ok) continue;
+
+                const data = await response.json();
+
+                if (data.articles && data.articles.length > 0) {
+                    const articles = data.articles.slice(0, 3).map(article => ({
+                        title: article.title,
+                        source: article.domain,
+                        url: article.url,
+                        published: article.seendate,
+                        category: categorizeIntelFeed(keyword),
+                        socialmetrics: article.socialimage || null
+                    }));
+
+                    feeds.push(...articles);
+                }
+
+                await new Promise(resolve => setTimeout(resolve, 100));
+
+            } catch (error) {
+                console.warn(`Error fetching feed for "${keyword}":`, error);
+                continue;
+            }
+        }
+
+        // Sort by most recent
+        feeds.sort((a, b) => new Date(b.published) - new Date(a.published));
+
+        const result = feeds.slice(0, 20); // Limit to 20 most recent
+        dataCache.liveFeeds = { data: result, timestamp: Date.now() };
+        return result;
+
+    } catch (error) {
+        console.error('Error fetching live feeds:', error);
+        return dataCache.liveFeeds.data || [];
+    }
+}
+
+/**
+ * Categorize intelligence feed
+ */
+function categorizeIntelFeed(keyword) {
+    const keywordLower = keyword.toLowerCase();
+
+    if (keywordLower.includes('military') || keywordLower.includes('missile')) return 'Military';
+    if (keywordLower.includes('strike') || keywordLower.includes('explosion')) return 'Combat';
+    if (keywordLower.includes('protest') || keywordLower.includes('coup')) return 'Civil';
+    if (keywordLower.includes('cyber')) return 'Cyber';
+    if (keywordLower.includes('naval') || keywordLower.includes('incident')) return 'Maritime';
+    if (keywordLower.includes('sanctions')) return 'Economic';
+
+    return 'Intelligence';
 }
 
 /**

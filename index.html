@@ -59,7 +59,8 @@
         </div>
     </div>
 
-    <main class="dashboard">
+    <div class="app-container">
+        <main class="dashboard">
         <!-- Global Conflict Map Panel - MAIN FEATURE -->
         <section class="panel map-main" id="panel-map" data-panel="map">
             <div class="panel-header">
@@ -221,11 +222,51 @@
         </section>
     </main>
 
+    <!-- Live Intelligence Feed Sidebar -->
+    <aside class="live-feed-sidebar" id="live-feed-sidebar">
+        <div class="sidebar-header">
+            <h2>LIVE TRACKING</h2>
+            <button class="sidebar-toggle" id="sidebar-toggle" title="Toggle sidebar">
+                <span>×</span>
+            </button>
+        </div>
+
+        <div class="sidebar-tabs">
+            <button class="sidebar-tab active" data-tab="social-intel">Social Intel</button>
+            <button class="sidebar-tab" data-tab="earthquakes">Earthquakes</button>
+        </div>
+
+        <div class="sidebar-content">
+            <!-- Social Intelligence Tab -->
+            <div class="tab-panel active" id="social-intel-panel">
+                <div class="feed-header">
+                    <span class="feed-badge" id="feed-count">0</span>
+                    <span>items</span>
+                </div>
+                <div class="feed-list" id="live-feed-list">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+
+            <!-- Earthquakes Tab -->
+            <div class="tab-panel" id="earthquakes-panel">
+                <div class="feed-header">
+                    <span class="feed-badge" id="earthquake-count">0</span>
+                    <span>events</span>
+                </div>
+                <div class="feed-list" id="earthquake-feed-list">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+        </div>
+    </aside>
+</div>
+
     <footer>
         <div class="footer-content">
             <span>Last Updated: <span id="last-update">--</span></span>
             <span class="footer-sep">|</span>
-            <span>Data Sources: GDELT, NVD, CISA KEV, ThreatFox, Ransomware.live</span>
+            <span>Data Sources: GDELT, USGS, NVD, CISA KEV, ThreatFox, Ransomware.live</span>
             <span class="footer-sep">|</span>
             <span>Auto-refresh: 5 min</span>
         </div>
