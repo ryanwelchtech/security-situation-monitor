@@ -11,6 +11,8 @@ import {
     fetchRansomwareVictims,
     fetchRansomwareGroups,
     fetchConflictData,
+    fetchEarthquakes,
+    fetchLiveFeeds,
     clearCache
 } from './data.js';
 import {
@@ -23,6 +25,8 @@ import {
     renderCorrelations,
     renderStats,
     renderTimeline,
+    renderLiveFeeds,
+    renderEarthquakeFeed,
     updateLastRefresh,
     setStatus
 } from './renderers.js';
@@ -36,6 +40,8 @@ let autoRefreshEnabled = true;
 let allCVEs = [];
 let allThreatData = { iocs: [], malwareFamilies: [] };
 let allConflictData = { conflicts: [], locationCounts: {} };
+let allEarthquakes = [];
+let allLiveFeeds = [];
 
 /**
  * Initialize the application
@@ -46,6 +52,7 @@ async function init() {
     // Initialize UI components
     initPanels();
     initMobileMenu();
+    initSidebar();
 
     // Initialize map
     await initMap();
@@ -60,6 +67,44 @@ async function init() {
 }
 
 /**
+ * Initialize sidebar functionality
+ */
+function initSidebar() {
+    // Tab switching
+    const tabs = document.querySelectorAll('.sidebar-tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabName = tab.dataset.tab;
+
+            // Update active tab
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            // Update active panel
+            const panels = document.querySelectorAll('.tab-panel');
+            panels.forEach(panel => {
+                panel.classList.remove('active');
+            });
+
+            const targetPanel = document.getElementById(`${tabName}-panel`);
+            if (targetPanel) {
+                targetPanel.classList.add('active');
+            }
+        });
+    });
+
+    // Toggle sidebar
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('live-feed-sidebar');
+
+    if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+        });
+    }
+}
+
+/**
  * Refresh all data
  */
 async function refreshAll() {
@@ -67,8 +112,10 @@ async function refreshAll() {
 
     try {
         // Fetch all data in parallel
-        const [conflicts, cves, kevs, threatData, ransomwareVictims, ransomwareGroups] = await Promise.allSettled([
+        const [conflicts, earthquakes, liveFeeds, cves, kevs, threatData, ransomwareVictims, ransomwareGroups] = await Promise.allSettled([
             fetchConflictData(),
+            fetchEarthquakes(),
+            fetchLiveFeeds(),
             fetchRecentCVEs(),
             fetchCISAKEV(),
             fetchThreatFoxIOCs(),
@@ -78,6 +125,8 @@ async function refreshAll() {
 
         // Extract values, handling failures gracefully
         const conflictData = conflicts.status === 'fulfilled' ? conflicts.value : { conflicts: [], locationCounts: {} };
+        const earthquakeData = earthquakes.status === 'fulfilled' ? earthquakes.value : [];
+        const liveFeedsData = liveFeeds.status === 'fulfilled' ? liveFeeds.value : [];
         const cveData = cves.status === 'fulfilled' ? cves.value : [];
         const kevData = kevs.status === 'fulfilled' ? kevs.value : [];
         const threatIntelData = threatData.status === 'fulfilled' ? threatData.value : { iocs: [], malwareFamilies: [] };
@@ -88,6 +137,8 @@ async function refreshAll() {
         allCVEs = cveData;
         allThreatData = threatIntelData;
         allConflictData = conflictData;
+        allEarthquakes = earthquakeData;
+        allLiveFeeds = liveFeedsData;
 
         // Render panels
         if (isPanelEnabled('cve')) {
@@ -120,15 +171,18 @@ async function refreshAll() {
             renderCorrelations(correlations);
         }
 
-        // Update map with conflict data as primary focus
+        // Update map with conflict data, earthquakes, and cyber threats
         if (isPanelEnabled('map')) {
-            updateThreatMarkers(conflictData, victimsData);
+            updateThreatMarkers(conflictData, victimsData, earthquakeData);
 
             // Update conflict count badge
             const conflictCount = conflictData.conflicts ? conflictData.conflicts.length : 0;
+            const earthquakeCount = earthquakeData ? earthquakeData.length : 0;
+            const totalEvents = conflictCount + earthquakeCount;
+
             const countBadge = document.getElementById('conflict-count');
             if (countBadge) {
-                countBadge.textContent = conflictCount;
+                countBadge.textContent = totalEvents;
             }
         }
 
@@ -143,6 +197,10 @@ async function refreshAll() {
             const timeline = buildTimeline(cveData, kevData, threatIntelData, victimsData);
             renderTimeline(timeline);
         }
+
+        // Render live feeds sidebar
+        renderLiveFeeds(liveFeedsData);
+        renderEarthquakeFeed(earthquakeData);
 
         // Update UI
         updateLastRefresh();

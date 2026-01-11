@@ -24,6 +24,12 @@ export const API_ENDPOINTS = {
     // ACLED (Armed Conflict Location & Event Data Project)
     ACLED_API: 'https://api.acleddata.com/acled/read',
 
+    // USGS Earthquake API
+    USGS_EARTHQUAKES: 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson',
+
+    // NewsAPI for live intelligence feeds
+    NEWSAPI_GDELT: 'https://api.gdeltproject.org/api/v2/doc/doc',
+
     // CORS Proxy for APIs that don't support CORS
     CORS_PROXY: 'https://api.allorigins.win/raw?url='
 };
